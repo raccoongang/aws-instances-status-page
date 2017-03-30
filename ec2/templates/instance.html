@@ -1,0 +1,56 @@
+{% load staticfiles %}
+
+<html>
+<head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="{% static "css/instance.css" %}">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="instances-list">
+        <ol class="instance-ol-li">
+            {% for instance in instances %}
+                <li><a href="{% url 'ec2:instance' user instance.instance_id %}">{{instance.name}} ({{instance.state}})</a></li>
+            {% endfor %}
+        </ol>
+    </div>
+
+    <div class="instances-info">
+        <table>
+            <tr><th colspan="2">Instance information</th></tr>
+            <tr><td>Name</td><td>{{instance.name}}</td></tr>
+            <tr><td>ID</td><td>{{instance.instance_id}}</td></tr>
+            <tr><td>Type</td><td>{{instance.instance_type}}</td></tr>
+            <tr><td>State</td><td>{{instance.state}}</td></tr>
+            <tr><td>Creation date</td><td>{{instance.datetime_of_creation|date:'d-m-Y H:i'}}</td></tr>
+
+            {% if user != 'chief' %}
+
+            <tr><td>Public</td><td>{{instance.public_ip_address}}</td></tr>
+            <tr><td>Private</td><td>{{instance.private_ip_address}}</td></tr>
+            <tr><td>VPC</td><td>{{instance.vpc_id}}</td></tr>
+            <tr><td>Security</td><td>{{instance.security_group}}</td></tr>
+            <tr><td>Volumes date</td><td>{{instance.volumes}}</td></tr>
+
+            {% endif %}
+
+            <tr><td>Last datetime of update</td><td>{{instance.datetime_of_current_ec2_info|date:'d-m-Y H:i'}}</td></tr>
+        </table>
+    </div>
+
+    <div class="instances-billing">
+        <table>
+            <tr><th colspan="2">Billing information</th>
+            <tr><td>EC2 instance/hour</td><td>{{instance.ec2_cost_by_hour}}$</td></tr>
+            <tr><td>Volumes/month</td><td>{{instance.volumes_cost_by_month}}$</td></tr>
+            <tr><td>Overall/month</td><td>{{instance.overall_cost_by_month}}$</td></tr>
+            <tr><td>Overall/all time</td><td>{{instance.overall_cost_all_time}}$</td></tr>
+        </table>
+    </div>
+
+</div>
+
+</body>
+</html>
