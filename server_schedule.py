@@ -1,3 +1,7 @@
+"""
+Scheduler, that updates overall and billing information about own EC2 instances from AWS-account.
+"""
+
 from apscheduler.schedulers.blocking import BlockingScheduler
 from botocore.exceptions import ClientError
 
@@ -24,6 +28,14 @@ PRICE_URL = 'http://a0.awsstatic.com/pricing/1/ec2/linux-od.min.js'
 
 
 def regions_we_have():
+    """
+    Method checks corresponding region to each instance.
+
+    Returns:
+        own_regions (dict): {'instance.id': 'region', ...}
+        instance.id (str): Instance`s id.
+        region (str): Instance`s region.
+    """
     client = boto3.client('ec2', aws_access_key_id=AWS_KEY, aws_secret_access_key=AWS_SECRET, region_name=REGION)
 
     all_regions = [region['RegionName'] for region in client.describe_regions()['Regions']]
@@ -40,6 +52,18 @@ def regions_we_have():
 
 
 def get_current_ec2_prices(own_regions):
+    """
+    Method gets current price for list of own EC2`s regions.
+
+    Arguments:
+        own_regions (dict): Data as region as value by instance as key.
+
+    Reference:
+        http://a0.awsstatic.com/pricing/1/ec2/linux-od.min.js
+
+    Returns:
+        prices_by_region (dict): Nested dictionary with regions and corresponding type-price counts.
+    """
     regions_list = list(set([key for key in own_regions.values()]))
 
     request = requests.get(PRICE_URL).text
@@ -66,6 +90,9 @@ def get_current_ec2_prices(own_regions):
 
 
 def refresh_instances_info():
+    """
+    Directly information refresher (scheduler) for AWS`s EC2-instances.
+    """
     regions_by_instance = regions_we_have()
 
     current_price = get_current_ec2_prices(regions_by_instance)

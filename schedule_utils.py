@@ -1,29 +1,51 @@
+"""
+Scheduler`s helpers, oriented on calculating AWS`s using cost.
+"""
+
 from calendar import monthrange
 import datetime
 
 
 def volume_cost(volume_type, size, iops=None):
-    """Volumes price by type - https://aws.amazon.com/ebs/pricing"""
+    """
+    Method calculate cost of volume by type and size.
+
+    Arguments:
+        volume_type (str): Instance`s volume type.
+        size (int): Instance`s volume size.
+        iops (int): Instance`s volume iops count (look below at reference).
+
+    Reference:
+        https://aws.amazon.com/ebs/pricing
+
+    Return:
+        Float value, that equals total instance`s volume cost in dollars ($).
+    """
     stable_price = 12 / (24 * 30)
 
     if volume_type == 'gp2':
-        cost = 0.10 * size * 1024 * stable_price
+        return 0.10 * size * 1024 * stable_price
     elif volume_type == 'io1':
-        cost = 0.10 * iops * 1000 * 30 / 30
+        return 0.10 * iops * 1000 * 30 / 30
     elif volume_type == 'st1':
-        cost = 0.045 * size * 1024 * stable_price
+        return 0.045 * size * 1024 * stable_price
     else:  # 'sc1'
-        cost = 0.025 * size * 1024 * stable_price
-
-    return cost
+        return 0.025 * size * 1024 * stable_price
 
 
-def total_month_cost(volumes_total, ec2_total):
-    """Get count of days in month, that have passed with monthrange(count of days in month)
-    and subtraction of the remainder. Example, now 23-th, month has 30 days.
-    Exit value is: 30 - (30 - 23) => 30 - 7 = 23."""
+def total_month_cost(volumes_total, ec2_by_hour):
+    """
+    Method calculate total cost of volumes and EC-2 instance for current month.
+
+    Arguments:
+        volumes_total (float): Amount of all volumes cost by instance.
+        ec2_by_hour (float): Instance`s cost by one hour.
+
+    Return:
+        Float value, that equals month total instance`s cost in dollars ($).
+    """
     volume_cost_by_day = volumes_total / 30
-    instance_cost_by_day = ec2_total * 24
+    instance_cost_by_day = ec2_by_hour * 24
     now = datetime.datetime.now()
 
     days_in_month = monthrange(now.year, now.month)
@@ -33,10 +55,20 @@ def total_month_cost(volumes_total, ec2_total):
     return round(month_cost, 2)
 
 
-def overall_instance_cost(volumes_total, ec2_by_hour, created_date):
-    """Get count of all used hours by instance and then multiplication with price."""
+def overall_instance_cost(month_volumes_cost, ec2_by_hour, created_date):
+    """
+    Method provides multiplication of volumes and EC-2 hours by instance from started date.
+
+    Arguments:
+        month_volumes_cost (float): Month volumes count by instance.
+        ec2_by_hour (float): Instance`s cost by one hour.
+        created_date (datetime): Datetime of instance`s creation.
+
+    Return:
+        Float value, that equals overall instance`s cost from started date in dollars ($).
+    """
     created_date += datetime.timedelta(hours=2)
-    volume_cost_by_hour = volumes_total / 30 / 24
+    volume_cost_by_hour = month_volumes_cost / 30 / 24
     total_hours = (datetime.datetime.now() - created_date.replace(tzinfo=None)).days * 24
     instance_all_time_cost = total_hours * (volume_cost_by_hour + ec2_by_hour)
 
