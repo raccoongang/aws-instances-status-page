@@ -61,9 +61,9 @@ def get_current_ec2_prices(own_regions):
         http://a0.awsstatic.com/pricing/1/ec2/linux-od.min.js
 
     Returns:
-        prices_by_region (dict): Nested dictionary with regions and corresponding type-price counts.
+        regions_prices (dict): Nested dictionary with regions and corresponding type-price counts.
     """
-    regions_list = list(set([key for key in own_regions.values()]))
+    own_regions_list = list(set([key for key in own_regions.values()]))
 
     request = requests.get(PRICE_URL).text
 
@@ -74,18 +74,17 @@ def get_current_ec2_prices(own_regions):
     request = re.sub(r",\s*(\w)", r',"\1', request)
     request = re.sub(r"(\w):", r'\1":', request)
 
-    prices_by_region = {}
+    regions_prices = {region: {} for region in own_regions_list}
 
-    for region in regions_list:
-        for item in json.loads(request)['config']['regions']:
-            if item['region'] == region:
-                prices_by_region[item['region']] = {}
-                for sizes in item['instanceTypes']:
-                    for size in sizes['sizes']:
-                        for price in size['valueColumns']:
-                            prices_by_region[item['region']][size['size']] = price['prices']['USD']
+    aws_regions_data = [region for region in json.loads(request)['config']['regions']]
 
-    return prices_by_region
+    regions_by_types = [region['instanceTypes'] for region in aws_regions_data if region['region'] in own_regions_list]
+
+    for region, sizes in zip(own_regions_list, regions_by_types):
+        for size in sizes[0]['sizes']:
+            regions_prices[region][size['size']] = size['valueColumns'][0]['prices']['USD']
+
+    return regions_prices
 
 
 def refresh_instances_info():
