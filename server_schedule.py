@@ -100,6 +100,14 @@ def refresh_instances_info():
 
     instances = [instance.id for instance in ec2.instances.all()]
 
+    db_instances = [db_instance.instance_id for db_instance in EC2Instance.objects.all()]
+
+    need_to_delete_old_data = list(set(db_instances) - set(instances))
+
+    if len(need_to_delete_old_data) > 0:
+        for old_instance_id in need_to_delete_old_data:
+            EC2Instance.objects.get(instance_id=old_instance_id).delete()
+
     for instance_id in instances:
         instance = ec2.Instance(instance_id)
 
