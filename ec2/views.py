@@ -3,11 +3,12 @@ Views for EC-2 application to work with AWS`s EC-2 instances.
 """
 
 from django.shortcuts import get_object_or_404
-from .models import Instance as EC2Instance
 from django.views.generic import View
 from django.shortcuts import render
 from django.views import generic
 from django.http import Http404
+
+from .models import Instance as EC2Instance
 
 
 class Homepage(View):

@@ -2,16 +2,15 @@
 Scheduler, that updates overall and billing information about own EC2 instances from AWS-account.
 """
 
-from apscheduler.schedulers.blocking import BlockingScheduler
-from botocore.exceptions import ClientError
-
-import requests
 import datetime
-import boto3
 import json
+import os
 import re
 
-import os
+import boto3
+from botocore.exceptions import ClientError
+from apscheduler.schedulers.blocking import BlockingScheduler
+import requests
 import django
 
 from schedule_utils import volume_cost, total_month_cost, overall_instance_cost
