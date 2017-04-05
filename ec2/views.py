@@ -67,7 +67,7 @@ class Instance(generic.ListView):
         """
         context = super(Instance, self).get_context_data(**kwargs)
 
-        if self.kwargs['user'] == 'chief' or self.kwargs['user'] == 'employee':
+        if self.kwargs['user'] in ('chief', 'employee'):
             context['user'] = self.kwargs['user']
         else:
             raise Http404

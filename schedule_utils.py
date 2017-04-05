@@ -21,16 +21,13 @@ def volume_cost(volume_type, size, iops=None):
     Return:
         Float value, that equals total instance`s volume cost in dollars ($).
     """
-    stable_price = 12 / (24 * 30)
+    coefficients = {'gp2': 0.10, 'st1': 0.045, 'sc1': 0.025}
 
-    if volume_type == 'gp2':
-        return 0.10 * size * 1024 * stable_price
-    elif volume_type == 'io1':
+    if volume_type in ('gp2', 'st1', 'sc1'):
+        return coefficients[volume_type] * size * 1024 * 12 / (24 * 30)
+
+    if volume_type == 'io1':
         return 0.10 * iops * 1000 * 30 / 30
-    elif volume_type == 'st1':
-        return 0.045 * size * 1024 * stable_price
-    else:  # 'sc1'
-        return 0.025 * size * 1024 * stable_price
 
 
 def total_month_cost(volumes_total, ec2_by_hour):

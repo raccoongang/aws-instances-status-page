@@ -124,7 +124,8 @@ def refresh_instances_info():
             'overall_cost_by_month': total_month_cost(month_volumes_cost, ec2_hour_cost),
             'overall_cost_all_time': overall_instance_cost(month_volumes_cost, ec2_hour_cost, instance.launch_time),
             'datetime_of_creation': (instance.launch_time.replace(tzinfo=None) + datetime.timedelta(hours=2)),
-            'datetime_of_current_ec2_info': datetime.datetime.now()}
+            'datetime_of_current_ec2_info': datetime.datetime.now()
+        }
 
         try:
             ec2_instance = EC2Instance.objects.get(instance_id=instance_id)
