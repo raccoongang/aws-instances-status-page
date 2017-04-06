@@ -1,0 +1,16 @@
+{% load staticfiles %}
+
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="{% static "css/homepage.css" %}">
+</head>
+<body>
+
+<div class="container">
+	<div class="chief"><a href="{% url 'ec2:instance' 'chief' basic_instance %}" class="chief-btn">Chief</a></div>
+	<div class="employee"><a href="{% url 'ec2:instance' 'employee' basic_instance %}" class="employee-btn">Employee</a></div>
+</div>
+
+</body>
+</html>

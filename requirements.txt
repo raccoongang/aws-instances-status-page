@@ -1,0 +1,8 @@
+dj-database-url==0.4.1
+Django==1.10
+gunicorn==19.6.0
+psycopg2==2.6.1
+whitenoise==2.0.6
+APScheduler==3.0.0
+boto3==1.4.4
+requests==2.13.0
