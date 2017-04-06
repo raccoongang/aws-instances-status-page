@@ -89,7 +89,27 @@ def get_current_ec2_prices(own_regions):
 
 def refresh_instances_info():
     """
-    Directly information refresher (scheduler) for AWS`s EC2-instances.
+    Method create overall and billing data for each new AWS`s EC-2 instance and/or update for each instance
+    already exists. Also if existing instances are out of date, method deletes them all.
+
+    Fields for instance data are:
+        `name` is a name of instance.
+        `instance_id` is an id of instance.
+        `instance_type` is a type of instance.
+        `state` is a state of instance.
+        `public_ip_address` is public IP address type of instance.
+        `private_ip_address` is private IP address type of instance.
+        `vpc_id` is a VPC id of instance.
+        `security_group` is a security group of instance.
+        `volumes` is a list of volumes, that instance contains.
+
+        `ec2_cost_by_hour` is an EC-2 instance`s cost by hour.
+        `volumes_cost_by_month` is an instance`s volumes cost by month.
+        `overall_cost_by_month` is a total cost of volumes and EC-2 instance for current month.
+        `overall_cost_all_time` is a sum of volumes and EC-2 hours by instance from started date.
+
+        `datetime_of_creation` is a date and time of instance`s creation.
+        `datetime_of_current_ec2_info` is a date and time of last instance`s info update.
     """
     regions_by_instance = regions_we_have()
 
@@ -101,10 +121,10 @@ def refresh_instances_info():
 
     db_instances = [db_instance.instance_id for db_instance in EC2Instance.objects.all()]
 
-    need_to_delete_old_data = list(set(db_instances) - set(instances))
+    data_to_delete = list(set(db_instances) - set(instances))
 
-    if len(need_to_delete_old_data) > 0:
-        for old_instance_id in need_to_delete_old_data:
+    if data_to_delete:
+        for old_instance_id in data_to_delete:
             EC2Instance.objects.get(instance_id=old_instance_id).delete()
 
     for instance_id in instances:
