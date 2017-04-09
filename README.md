@@ -87,3 +87,7 @@ variables in Heroku-application environment. It`s tip for saving secret data not
 $ heroku config:set S3_KEY=8N029N81 S3_SECRET=9s83109d3+583493190 REGION='ea-east-1'
 ```
 More about this into [link](https://devcenter.heroku.com/articles/config-vars).
+
+## System requirements
+
+All you need with Heroku Cloud Platform is 512 MB RAM (not minimum point, but currently using).
