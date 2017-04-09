@@ -2,54 +2,97 @@
 
 <html>
 <head>
-    <title></title>
+    <title>AWS instances status page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="
+    sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="
+    sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="
+    sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
     <link rel="stylesheet" type="text/css" href="{% static "css/instance.css" %}">
 </head>
 <body>
 
 <div class="container">
+  <div class="row">
 
-    <div class="instances-list">
-        <ol class="instance-ol-li">
-            {% for instance in instances %}
-                <li><a href="{% url 'ec2:instance' user instance.instance_id %}">{{instance.name}} ({{instance.state}})</a></li>
-            {% endfor %}
-        </ol>
+    <div class="col-md-12 header-vertical-offset">
+        <h1>AWS instances status page</h1>
+        <h5>Current page provides overal and billing information about own instances<h5>
     </div>
 
-    <div class="instances-info">
-        <table>
+
+    <div class="col-md-2 col-vertical-offset">
+        <ul class="list-group">
+            {% for inst in instances %}
+                {% if  inst.name == instance.name %}
+                    <a href="{% url 'ec2:instance' inst.instance_id %}" class="list-group-item current-instance">{{inst.name}}</a>
+                {% else  %}
+                    <a href="{% url 'ec2:instance' inst.instance_id %}" class="list-group-item">{{inst.name}}</a>
+                {% endif %}
+
+            {% endfor %}
+        </ul>
+    </div>
+
+
+    <div class="col-md-6 col-vertical-offset">
+        <div class="panel panel-default">
+          <table class="table table-bordered" >
             <tr><th colspan="2">Instance information</th></tr>
             <tr><td>Name</td><td>{{instance.name}}</td></tr>
             <tr><td>ID</td><td>{{instance.instance_id}}</td></tr>
             <tr><td>Type</td><td>{{instance.instance_type}}</td></tr>
             <tr><td>State</td><td>{{instance.state}}</td></tr>
             <tr><td>Creation date</td><td>{{instance.datetime_of_creation|date:'d-m-Y H:i'}}</td></tr>
-
-            {% if user != 'chief' %}
-
             <tr><td>Public</td><td>{{instance.public_ip_address}}</td></tr>
             <tr><td>Private</td><td>{{instance.private_ip_address}}</td></tr>
             <tr><td>VPC</td><td>{{instance.vpc_id}}</td></tr>
             <tr><td>Security</td><td>{{instance.security_group}}</td></tr>
-            <tr><td>Volumes date</td><td>{{instance.volumes}}</td></tr>
-
-            {% endif %}
-
+            <tr><td>Volume(s)</td><td>{{instance.volumes}}</td></tr>
             <tr><td>Last datetime of update</td><td>{{instance.datetime_of_current_ec2_info|date:'d-m-Y H:i'}}</td></tr>
-        </table>
+          </table>
+        </div>
     </div>
 
-    <div class="instances-billing">
-        <table>
-            <tr><th colspan="2">Billing information</th>
-            <tr><td>EC2 instance/hour</td><td>{{instance.ec2_cost_by_hour}}$</td></tr>
-            <tr><td>Volumes/month</td><td>{{instance.volumes_cost_by_month}}$</td></tr>
-            <tr><td>Overall/month</td><td>{{instance.overall_cost_by_month}}$</td></tr>
-            <tr><td>Overall/all time</td><td>{{instance.overall_cost_all_time}}$</td></tr>
-        </table>
+
+    <div class="col-md-4 col-vertical-offset">
+        <div class="panel panel-default">
+          <table class="table table-bordered">
+            <tr><th colspan="2">Billing information</th></tr>
+            <tr><td>EC2 per hour</td><td>{{instance.ec2_cost_by_hour}}$</td></tr>
+            <tr><td>Volume(s) per month</td><td>{{instance.volumes_cost_by_month}}$</td></tr>
+            <tr><td>Current month</td><td>{{instance.overall_cost_by_month}}$</td></tr>
+            <tr><td>All time total cost</td><td>{{instance.overall_cost_all_time}}$</td></tr>
+          </table>
+        </div>
     </div>
 
+
+    <div class="col-md-4">
+        <div class="panel panel-default">
+          <table class="table table-bordered">
+            <tr><th colspan="3">All instances billing</th></tr>
+            <tr class="sub-header"><td>Instance</td><td>Current month</td><td>Total</td></tr>
+            {% for inst in instances %}
+                <tr><td>{{inst.name}}</td><td>{{inst.overall_cost_by_month}}$</td><td>{{inst.overall_cost_all_time}}$</td></tr>
+            {% endfor %}
+            <tr><th colspan="3">All time total cost (all instances) — {{all_instances_cost}}$</th></tr>
+          </table>
+        </div>
+    </div>
+
+
+    <div class="col-md-2 col-md-offset-5 col-vertical-offset">
+        <a href="{% url 'logout' %}?next={% url 'ec2:index' %}" class="btn btn-default btn-block" role="button">Logout</a>
+    </div>
+
+  </div>
 </div>
 
 </body>
